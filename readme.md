@@ -6,7 +6,7 @@ Fancy progress bars for JetBrains IDEs, themed around various pride flags.
 
 Open your IDE settings and navigate to `Appearance & Behavior > PrideBars`. Pick your desired flag from the dropdown menu and click "Apply".
 
-![Example](/images/example.gif)
+![Example](images/example.gif)
 
 # Included flags
 
