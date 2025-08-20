@@ -1,0 +1,40 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>fm.luma.pridebars.PrideBars</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
+    <name>PrideBars</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor url="https://luma.fm" email="me@luma.fm">Lumanyx</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
+    <description><![CDATA[
+        Fancy Pride-themed bars for your favorite JetBrains IDE.
+    ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService
+                serviceImplementation="fm.luma.pridebars.config.PrideBarSettings"/>
+        <applicationConfigurable
+                parentId="appearance"
+                instance="fm.luma.pridebars.config.PrideBarConfigurable"
+                id="fm.luma.pridebars.config.PrideBarConfigurable"
+                displayName="PrideBars"/>
+    </extensions>
+
+
+    <applicationListeners>
+        <listener class="fm.luma.pridebars.PrideBarsApplicationComponent" topic="com.intellij.ide.ui.LafManagerListener"/>
+        <listener class="fm.luma.pridebars.PrideBarsApplicationComponent" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+    </applicationListeners>
+</idea-plugin>
