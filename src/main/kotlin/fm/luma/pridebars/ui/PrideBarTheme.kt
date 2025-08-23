@@ -1,18 +1,22 @@
 package fm.luma.pridebars.ui
 
 import com.intellij.util.ui.JBUI
+import com.intellij.util.ui.UIUtil
 import fm.luma.pridebars.config.PrideBarSettings
 import fm.luma.pridebars.style.BarStyleRegistry
+import fm.luma.pridebars.util.EasingMode
+import fm.luma.pridebars.util.getEasing
 import java.awt.*
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
+import java.awt.geom.Rectangle2D
 import java.awt.geom.RoundRectangle2D
-import javax.swing.*
+import java.awt.image.BufferedImage
+import javax.swing.JComponent
+import javax.swing.JProgressBar
+import javax.swing.SwingConstants
 import javax.swing.plaf.ComponentUI
 import javax.swing.plaf.basic.BasicProgressBarUI
-import kotlin.math.PI
 import kotlin.math.sin
 
 
@@ -54,7 +58,12 @@ class PrideBarTheme : BasicProgressBarUI() {
             _forcedStyle
         } else {
             val style = BarStyleRegistry.getStyle(PrideBarSettings.getInstance().state.style)
-            ProgressBarTheme(style.getStyle(height), PrideBarSettings.getInstance().state.enableFade)
+            ProgressBarTheme(
+                style.getStyle(height),
+                PrideBarSettings.getInstance().state.fadeWidth,
+                getEasing(PrideBarSettings.getInstance().state.easing),
+                PrideBarSettings.getInstance().state.roundingRadius,
+            )
         }
         _lastStyle = style
         _cachedPaint = style!!.gradient
@@ -89,63 +98,65 @@ class PrideBarTheme : BasicProgressBarUI() {
         graphics.setRenderingHints(qualityHints)
     }
 
+    fun generateProgressBar(width: Int, height: Int, time: Float, fadeWidth: Int, fadingMode: EasingMode): BufferedImage {
+        val image = UIUtil.createImage(null, width, height, BufferedImage.TYPE_INT_ARGB)
+        val g2d = image.createGraphics()
+        setRenderHints(g2d)
+        applyPaint(g2d, height)
+
+        val occupiedPixels = (width.toFloat() * time).toInt().coerceIn(0, width)
+        val fadePixels = determineFadePixels(JBUI.scale(fadeWidth), time)
+        val fullOpacityWidth = occupiedPixels - fadePixels
+        g2d.fillRect(0, 0, fullOpacityWidth, height)
+        for (pixel in 0..<fadePixels) {
+            val alpha = fadingMode.ease(1.0 - (pixel.toFloat() / fadePixels.toFloat())).coerceIn(0.0, 1.0)
+            if (alpha < MIN_FADE_ALPHA) continue
+
+            g2d.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha.toFloat())
+            g2d.fillRect(fullOpacityWidth + pixel, 0, 1, height)
+        }
+        return image
+    }
+
+    private fun determineFadePixels(fadeWidth: Int, time: Float): Int {
+        if (time <= FADE_OUT_END) return fadeWidth
+        if (time >= 1.0) return 0
+        val fadeOutLength = 1.0 - FADE_OUT_END
+        val relativeTime = (time - FADE_OUT_END)
+        val factor = 1.0 - (relativeTime / fadeOutLength)
+        return (fadeWidth * factor).toInt()
+    }
+
     override fun paintDeterminate(graphics: Graphics, component: JComponent) {
         if (graphics !is Graphics2D) return
 
         val bounds = getBounds(component)
         applyPaint(graphics, bounds.height)
+        setRenderHints(graphics)
         val config = getEffectiveConfig()
 
-        var progressFactor = progressBar.value / 100.0
+        var progressFactor = (progressBar.value / 100.0).coerceIn(0.0, 1.0)
         if (progressBar.isIndeterminate) progressFactor = 1.0
 
-        val visibleWidth = (progressFactor * bounds.width).toInt()
-        if (bounds.width <= 0 || bounds.height <= 0) return
+        val fullRectangle = getRectangle(bounds, 1.0, config.roundingRadius)
+        val texture = generateProgressBar(
+            bounds.width, bounds.height,
+            progressFactor.toFloat(),
+            config.fadePixels,
+            config.easing
+        )
 
-        var fadeOutWidth: Int = FADE_OUT_WIDTH
-        if (config.fade) {
-            if (progressFactor > FADE_OUT_END) {
-                fadeOutWidth *= (progressFactor - FADE_OUT_END).toInt()
-            }
-        } else {
-            fadeOutWidth = 0
-        }
-
-        setRenderHints(graphics)
-        val fullRectangle = getRectangle(bounds, 1.0)
-
-        val fadeOutOffset = if (config.fade) 4 else 0
-
-        val filledProgress = (visibleWidth - (fadeOutWidth - fadeOutOffset)) / bounds.width.toDouble()
-        val progressRectangle = getRectangle(bounds, filledProgress)
-        graphics.color = determineBackground(component)
+        graphics.clearRect(bounds.x, bounds.y, bounds.width, bounds.height)
+        graphics.paint = determineBackground(component)
+        graphics.fillRect(0, 0, bounds.width, bounds.height)
+        graphics.paint = TexturePaint(
+            texture,
+            Rectangle2D.Float(
+                0.0f, 0.0f,
+                bounds.width.toFloat(), bounds.height.toFloat()
+            )
+        )
         graphics.fill(fullRectangle)
-
-        applyPaint(graphics, bounds.height)
-        if ((visibleWidth - fadeOutWidth) > 0)
-            graphics.fill(progressRectangle)
-
-        graphics.clip = fullRectangle
-        for (fadeOutPixel in 0..<(fadeOutWidth * 2)) {
-            val time = fadeOutPixel / fadeOutWidth.toFloat()
-            var alpha = (time - 1.0)
-            if (time < 1.0) {
-                alpha = 1.0
-            } else if (time >= 1.0) {
-                alpha = 1.0 - (time - 1.0)
-                alpha *= 0.5 + (sin(alpha * (PI / 2)))
-            }
-            if (alpha < MIN_FADE_ALPHA) continue
-
-            graphics.composite = AlphaComposite.getInstance(
-                AlphaComposite.SRC_OVER, alpha.toFloat()
-                    .coerceIn(0.0f, 1.0f)
-            )
-            graphics.fillRect(
-                bounds.x + (visibleWidth - (fadeOutWidth * 2)) + fadeOutPixel + fadeOutOffset,
-                bounds.y, 1, bounds.height
-            )
-        }
     }
 
     private fun getEffectiveConfig(): ProgressBarTheme {
@@ -153,20 +164,26 @@ class PrideBarTheme : BasicProgressBarUI() {
         if (forcedStyle != null) return forcedStyle
         return ProgressBarTheme(
             _cachedPaint!!,
-            PrideBarSettings.getInstance().state.enableFade,
+            PrideBarSettings.getInstance().state.fadeWidth,
+            getEasing(PrideBarSettings.getInstance().state.easing),
+            PrideBarSettings.getInstance().state.roundingRadius,
         )
     }
 
-    private fun determineBackground(component: JComponent): Color {
-        return if (component.getParent() != null) component.getParent().getBackground() else Color.GRAY.darker()
+    private fun getProgressFactor(): Double {
+        var progressFactor = (progressBar.value / 100.0).coerceIn(0.0, 1.0)
+        if (progressBar.isIndeterminate) progressFactor = 1.0
+        return progressFactor
     }
 
     override fun paintIndeterminate(graphics: Graphics, component: JComponent) {
         if (graphics !is Graphics2D) return
         val bounds = getBounds(component)
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        val config = getEffectiveConfig()
+
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+        graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
+        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
 
         applyPaint(graphics, bounds.height)
 
@@ -177,34 +194,47 @@ class PrideBarTheme : BasicProgressBarUI() {
             return
         }
 
-        val b = progressBar.insets // area for border
-        val barRectWidth = progressBar.getWidth() - (b.right + b.left)
-        val barRectHeight = progressBar.getHeight() - (b.top + b.bottom)
-
-        if (barRectWidth <= 0 || barRectHeight <= 0) return
-
         // Fill background
-        val rectangle = getRectangle(bounds, 1.0)
+        val progressFactor = getProgressFactor()
+        val fullRectangle = getRectangle(bounds, 1.0, config.roundingRadius)
         graphics.paint = determineBackground(component)
-        graphics.fill(rectangle)
+        graphics.fill(fullRectangle)
 
-        applyPaint(graphics, bounds.height)
-        graphics.fill(rectangle)
+        val texture = generateProgressBar(
+            bounds.width, bounds.height,
+            progressFactor.toFloat(),
+            config.fadePixels,
+            config.easing
+        )
+        
+        graphics.clearRect(bounds.x, bounds.y, bounds.width, bounds.height)
+        graphics.paint = determineBackground(component)
+        graphics.fill(fullRectangle)
+
+        graphics.paint = TexturePaint(
+            texture,
+            Rectangle2D.Float(
+                0.0f, 0.0f,
+                bounds.width.toFloat(), bounds.height.toFloat()
+            )
+        )
+        graphics.fill(fullRectangle)
 
         val animPos = (System.currentTimeMillis() / 20L)
         val progress = 0.5 + (sin(animPos / 20.0) * 0.5)
         val multiplier = sin(progress * (Math.PI / 4)) * 2.0
         graphics.color = Color(0f, 0f, 0f, ((1.0 - progress) * multiplier).toFloat())
-        graphics.fill(rectangle)
+        graphics.fill(fullRectangle)
     }
 
-    private fun getRectangle(bounds: Bounds, progress: Double): RoundRectangle2D.Double {
+    private fun getRectangle(bounds: Bounds, progress: Double, rounding: Double): RoundRectangle2D.Double {
         return RoundRectangle2D.Double(
             bounds.x.toDouble(),
             bounds.y.toDouble(),
             bounds.width.toDouble() * progress.coerceIn(0.0, 1.0),
             bounds.height.toDouble(),
-            8.0, 8.0
+            JBUI.scale(rounding.toInt()).toDouble(),
+            JBUI.scale(rounding.toInt()).toDouble()
         )
     }
 
@@ -217,41 +247,23 @@ class PrideBarTheme : BasicProgressBarUI() {
     }
 
     companion object {
-        const val FADE_OUT_END: Double = 0.95
-        const val FADE_OUT_WIDTH: Int = 7
-        const val MIN_FADE_ALPHA: Double = 0.1
+        const val FADE_OUT_END: Double = 0.7
+        const val MIN_FADE_ALPHA: Double = 0.05
 
         @JvmStatic
         @Suppress("ACCIDENTAL_OVERRIDE")
         fun createUI(c: JComponent): ComponentUI {
-            c.border = JBUI.Borders.empty().asUIResource();
+            c.border = JBUI.Borders.empty().asUIResource()
             return PrideBarTheme()
-        }
-
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val frame = JFrame("Cute Progress Bar")
-            frame.setSize(200, 200)
-            val bar = PrideBarTheme()
-
-            val bar1 = JProgressBar()
-            bar1.setUI(bar)
-            bar1.setSize(400, 100)
-            bar1.value = 50
-
-            val timer = Timer(5, ActionListener { e: ActionEvent? ->
-                val `val` = (((sin((System.currentTimeMillis() / 800.0)) * 0.5) + 0.5) * 105.0)
-                bar1.value = `val`.toInt()
-            })
-            timer.start()
-
-            frame.setLocationRelativeTo(null)
-            frame.add(bar1)
-            frame.isVisible = true
         }
 
         private fun isEven(value: Int): Boolean {
             return value % 2 == 0
         }
     }
+
+    private fun determineBackground(component: JComponent): Color {
+        return if (component.getParent() != null) component.getParent().getBackground() else Color.GRAY.darker()
+    }
+
 }

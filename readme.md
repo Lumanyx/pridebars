@@ -23,6 +23,9 @@ Note: After installing the plugin, you may need to restart your IDE for the sett
 - Polysexual
 - Non-binary
 - Asexual
+- Agender
+- Demigirl
+- Demiboy
 
 More flags may be added in the future. I only focused on flags that can easily be represented with a gradient for now.
 
@@ -35,3 +38,5 @@ More flags may be added in the future. I only focused on flags that can easily b
 [NyanProgressBar](https://github.com/batya239/NyanProgressBar) as a basic starting point on how to implement a custom progress bar.
 
 [OfficialCRUGG](https://github.com/OfficialCRUGG) for helping with flag colors & other ideas.
+
+[Easings.net](https://easings.net/) for the easing functions used for the fade-out effect.

@@ -14,7 +14,9 @@ class PrideBarSettings : PersistentStateComponent<PrideBarSettings.ConfigState> 
 
     class ConfigState {
         var style: String = "pride"
-        var enableFade: Boolean = true
+        var easing: String = "linear"
+        var fadeWidth: Int = 8
+        var roundingRadius: Double = 8.0
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -22,18 +24,19 @@ class PrideBarSettings : PersistentStateComponent<PrideBarSettings.ConfigState> 
 
             other as ConfigState
 
-            if (enableFade != other.enableFade) return false
             if (style != other.style) return false
+            if (fadeWidth != other.fadeWidth) return false
+            if (roundingRadius != other.roundingRadius) return false
 
             return true
         }
 
         override fun hashCode(): Int {
-            var result = enableFade.hashCode()
+            var result = fadeWidth.hashCode()
             result = 31 * result + style.hashCode()
+            result = 31 * result + roundingRadius.hashCode()
             return result
         }
-
 
     }
 

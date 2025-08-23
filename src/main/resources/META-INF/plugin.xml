@@ -3,6 +3,8 @@
     <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
     <id>fm.luma.pridebars.PrideBars</id>
 
+    <version>1.1.0</version>
+
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
     <name>PrideBars</name>
@@ -32,6 +34,20 @@
                 displayName="PrideBars"/>
     </extensions>
 
+    <change-notes>
+        <![CDATA[
+        <h2>New features in 1.1.0</h2>
+        <ul>
+            <li>Add more pride flags (agender, demiboy, demigirl, demiflux)</li>
+            <li>Made the fade-out effect configurable</li>
+            <li>Made the rounding radius of the progress bar configurable</li>
+        </ul>
+        <h2>Bug fixes</h2>
+        <ul>
+            <li>Fixed fade-out rendering issues on Intel GPUs</li>
+        </ul>
+        ]]>
+    </change-notes>
 
     <applicationListeners>
         <listener class="fm.luma.pridebars.PrideBarsApplicationComponent" topic="com.intellij.ide.ui.LafManagerListener"/>

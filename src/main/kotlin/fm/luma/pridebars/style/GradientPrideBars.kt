@@ -1,3 +1,5 @@
+@file:Suppress("UseJBColor", "InspectionUsingGrayColors")
+
 package fm.luma.pridebars.style
 
 import java.awt.Color
@@ -248,5 +250,109 @@ val ASEXUAL_FLAG_STYLE = SimpleGradientBarStyle(
         Color(154, 18, 169).multiply(1.1F),
         Color(154, 18, 169),
         Color(154, 18, 169).multiply(0.8F),
+    )
+)
+
+val AGENDER_FLAG_STYLE = SimpleGradientBarStyle(
+    listOf(
+        Color(24, 24, 24).multiply(1.1F),
+        Color(24, 24, 24),
+        Color(24, 24, 24).multiply(0.9F),
+        Color(177, 186, 189).multiply(1.1F),
+        Color(177, 186, 189),
+        Color(177, 186, 189).multiply(0.8F),
+        Color(255, 255, 255).multiply(1.1F),
+        Color(255, 255, 255),
+        Color(255, 255, 255).multiply(0.85F),
+        Color(183, 246, 132).multiply(1.1F),
+        Color(183, 246, 132),
+        Color(183, 246, 132).multiply(0.9F),
+        Color(255, 255, 255).multiply(1.1F),
+        Color(255, 255, 255),
+        Color(255, 255, 255).multiply(0.85F),
+        Color(177, 186, 189).multiply(1.1F),
+        Color(177, 186, 189),
+        Color(177, 186, 189).multiply(0.8F),
+        Color(24, 24, 24).multiply(1.1F),
+        Color(24, 24, 24),
+        Color(24, 24, 24).multiply(0.8F),
+    )
+)
+
+val DEMIGIRL_FLAG_STYLE = SimpleGradientBarStyle(
+    listOf(
+        Color(112, 112, 112).multiply(1.1F),
+        Color(112, 112, 112),
+        Color(112, 112, 112).multiply(0.9F),
+        Color(196, 196, 196).multiply(1.1F),
+        Color(196, 196, 196),
+        Color(196, 196, 196).multiply(0.9F),
+        Color(253, 173, 200).multiply(1.1F),
+        Color(253, 173, 200),
+        Color(253, 173, 200).multiply(0.9F),
+        Color(255, 255, 255).multiply(1.1F),
+        Color(255, 255, 255),
+        Color(255, 255, 255).multiply(0.9F),
+        Color(253, 173, 200).multiply(1.1F),
+        Color(253, 173, 200),
+        Color(253, 173, 200).multiply(0.9F),
+        Color(196, 196, 196).multiply(1.1F),
+        Color(196, 196, 196),
+        Color(196, 196, 196).multiply(0.8F),
+        Color(112, 112, 112).multiply(1.05F),
+        Color(112, 112, 112),
+        Color(112, 112, 112).multiply(0.7F)
+    )
+)
+
+val DEMIBOY_FLAG_STYLE = SimpleGradientBarStyle(
+    listOf(
+        Color(112, 112, 112).multiply(1.1F),
+        Color(112, 112, 112),
+        Color(112, 112, 112).multiply(0.9F),
+        Color(196, 196, 196).multiply(1.1F),
+        Color(196, 196, 196),
+        Color(196, 196, 196).multiply(0.9F),
+        Color(157, 215, 234).multiply(1.1F),
+        Color(157, 215, 234),
+        Color(157, 215, 234).multiply(0.9F),
+        Color(235, 235, 235).multiply(1.1F),
+        Color(235, 235, 235),
+        Color(235, 235, 235).multiply(0.9F),
+        Color(157, 215, 234).multiply(1.1F),
+        Color(157, 215, 234),
+        Color(157, 215, 234).multiply(0.9F),
+        Color(196, 196, 196).multiply(1.1F),
+        Color(196, 196, 196),
+        Color(196, 196, 196).multiply(0.9F),
+        Color(112, 112, 112).multiply(1.1F),
+        Color(112, 112, 112),
+        Color(112, 112, 112).multiply(0.8F)
+    )
+)
+
+val DEMIFLUX_FLAG_STYLE = SimpleGradientBarStyle(
+    listOf(
+        Color(112, 112, 112).multiply(1.1F),
+        Color(112, 112, 112),
+        Color(112, 112, 112).multiply(0.9F),
+        Color(218, 218, 218).multiply(1.1F),
+        Color(218, 218, 218),
+        Color(218, 218, 218).multiply(0.9F),
+        Color(255, 181, 183).multiply(1.1F),
+        Color(255, 181, 183),
+        Color(255, 181, 183).multiply(0.9F),
+        Color(243, 246, 145).multiply(1.1F),
+        Color(243, 246, 145),
+        Color(243, 246, 145).multiply(0.9F),
+        Color(153, 217, 234).multiply(1.1F),
+        Color(153, 217, 234),
+        Color(153, 217, 234).multiply(0.9F),
+        Color(218, 218, 218).multiply(1.1F),
+        Color(218, 218, 218),
+        Color(218, 218, 218).multiply(0.9F),
+        Color(112, 112, 112).multiply(1.1F),
+        Color(112, 112, 112),
+        Color(112, 112, 112).multiply(0.8F),
     )
 )

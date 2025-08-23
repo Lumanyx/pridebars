@@ -40,6 +40,6 @@ class PrideBarConfigurable : Configurable {
         val state = PrideBarSettings.getInstance().state
         val parsedState = component.parseSettings()
         state.style = parsedState.style
-        state.enableFade = parsedState.enableFade
+        state.fadeWidth = parsedState.fadeWidth
     }
 }

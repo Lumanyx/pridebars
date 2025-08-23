@@ -22,6 +22,10 @@ object BarStyleRegistry {
         register("polysexual", "Polysexual", POLYSEXUAL_FLAG_STYLE)
         register("non_binary", "Non-binary", NONBINARY_FLAG_STYLE)
         register("asexual", "Asexual", ASEXUAL_FLAG_STYLE)
+        register("agender", "Agender", AGENDER_FLAG_STYLE)
+        register("demigirl", "Demigirl", DEMIGIRL_FLAG_STYLE)
+        register("demiboy", "Demiboy", DEMIBOY_FLAG_STYLE)
+        register("demiflux", "Demiflux", DEMIFLUX_FLAG_STYLE)
     }
 
     private fun register(id: String, displayName: String, style: IGradientBarStyle) {
