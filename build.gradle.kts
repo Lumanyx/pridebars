@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "fm.luma.pridebars"
-version = "1.0.0"
+version = "1.1.0"
 
 repositories {
     mavenCentral()
@@ -31,9 +31,8 @@ intellijPlatform {
         ideaVersion {
             sinceBuild = "251"
         }
-
         changeNotes = """
-            Initial version
+            Rework fade rendering, add more options & flags
         """.trimIndent()
     }
 }
